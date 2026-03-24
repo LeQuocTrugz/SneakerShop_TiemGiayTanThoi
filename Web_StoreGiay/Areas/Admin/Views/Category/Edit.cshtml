@@ -1,0 +1,35 @@
+﻿@model Web_StoreGiay.Models.Category
+
+@{
+    ViewData["Title"] = "Chỉnh sửa Danh Mục";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="my-4">Chỉnh sửa Danh Mục</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit" class="needs-validation" novalidate>
+            <input type="hidden" asp-for="Id" />
+
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label fw-bold"></label>
+                <input asp-for="Name" class="form-control" required />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Lưu thay đổi
+            </button>
+            <a asp-action="Index" class="btn btn-secondary ms-2">
+                <i class="fas fa-arrow-left"></i> Trở về danh sách
+            </a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

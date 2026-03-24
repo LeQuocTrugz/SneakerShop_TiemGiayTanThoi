@@ -1,0 +1,214 @@
+﻿@model Web_StoreGiay.Models.Product
+
+@{
+    ViewData["Title"] = "Update";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg p-4">
+        <h2 class="text-center text-primary">Chỉnh sửa sản phẩm</h2>
+
+        <form asp-action="Update" method="post" enctype="multipart/form-data">
+            <input type="hidden" asp-for="Id" />
+
+            <div class="row">
+                <!-- Cột hình ảnh -->
+                <div class="col-md-5 text-center">
+                    <!-- Ảnh chính -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Ảnh đại diện</label>
+                        <div class="position-relative">
+                            <img src="@Model.ImageUrl" alt="Product" class="img-fluid rounded product-image mb-3" id="mainImage">
+                            <input type="file" name="imageUrlFile" class="form-control mt-2" id="imageUrlInput" accept="image/*" onchange="previewMainImage(event)">
+                        </div>
+                    </div>
+
+                    <!-- Ảnh phụ -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Ảnh phụ</label>
+                        <div class="d-flex justify-content-center flex-wrap">
+                            @if (Model.Images != null && Model.Images.Any())
+                            {
+                                @foreach (var image in Model.Images)
+                                {
+                                    <img src="@image.Url" class="thumbnail mx-1" onclick="changeImage(event, '@image.Url')" alt="Ảnh phụ">
+                                }
+                            }
+                        </div>
+                        <input type="file" name="imageFiles" class="form-control mt-2" multiple accept="image/*">
+                    </div>
+                </div>
+
+
+                <!-- Cột thông tin sản phẩm -->
+                <div class="col-md-7">
+                    <div class="mb-3">
+                        <label class="form-label">Tên sản phẩm</label>
+                        <input asp-for="Name" class="form-control" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Giá</label>
+                        <input asp-for="Price" type="number" class="form-control" step="0.01" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Giá Giảm</label>
+                        <input asp-for="DiscountPrice" type="number" class="form-control" value="@Model.DiscountPrice ?? 0" />
+                        @if (Model.DiscountPrice == null || Model.DiscountPrice <= 0)
+                        {
+                            <span class="text-muted">N/A</span>
+                        }
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Mô tả</label>
+                        <textarea asp-for="Description" class="form-control" id="editor">@Html.Raw(Model.Description)</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Hãng</label>
+                        <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="form-control"></select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Chọn Size và Số Lượng</label>
+                        <div id="sizeContainer">
+                            @foreach (var size in ViewBag.Sizes)
+                            {
+                                // Ép kiểu ViewBag.ProductSizes thành List<ProductSize>
+                                var productSizes = ViewBag.ProductSizes as IEnumerable<ProductSize>;
+
+                                if (productSizes != null)
+                                {
+                                    var selectedProductSize = productSizes.FirstOrDefault(ps => ps.SizeId == size.Id);
+
+                                    <div class="size-item d-flex align-items-center gap-2">
+                                        <label>
+                                            <input type="checkbox" name="selectedSizes" value="@size.Id" class="size-checkbox"
+                                            @(selectedProductSize != null ? "checked" : "") /> @size.SizeNumber
+                                        </label>
+                                        <input type="number" name="stockQuantities" class="form-control stock-input"
+                                               placeholder="Số lượng" min="0" data-size-id="@size.Id"
+                                        @(selectedProductSize != null ? "" : "disabled")
+                                               value="@selectedProductSize?.Stock" />
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Lưu thay đổi
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Hủy
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .product-img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script src="https://cdn.ckeditor.com/ckeditor5/38.0.0/classic/ckeditor.js"></script>
+
+@section Scripts {
+    <script>
+            // Hiển thị ảnh đại diện khi chọn file
+        function previewMainImage(event) {
+            var file = event.target.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('mainImage').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        function changeImage(event, src) {
+                document.getElementById('mainImage').src = src;
+                document.querySelectorAll('.thumbnail').forEach(thumb => thumb.classList.remove('active'));
+                event.target.classList.add('active');
+            }
+            ClassicEditor
+                .create(document.querySelector('#editor'), {
+                    toolbar: [
+                        'heading', '|',
+                        'fontFamily', 'fontSize', '|',
+                        'bold', 'italic', 'link', '|',
+                        'alignment', 'imageUpload', '|',
+                        'bulletedList', 'numberedList', '|',
+                        'undo', 'redo'
+                    ],
+                    fontFamily: {
+                        options: [
+                            'default',
+                            'Arial, Helvetica, sans-serif',
+                            'Georgia, serif',
+                            'Courier New, Courier, monospace',
+                            'Times New Roman, Times, serif'
+                        ],
+                        supportAllValues: true
+                    },
+                    fontSize: {
+                        options: [
+                            'default',
+                            'tiny',
+                            'small',
+                            'big',
+                            'huge'
+                        ],
+                        supportAllValues: true
+                    },
+                    image: {
+                        toolbar: ['imageTextAlternative', '|', 'imageStyle:full', 'imageStyle:side'],
+                    },
+                    alignment: {
+                        options: ['left', 'center', 'right']
+                    },
+                    simpleUpload: {
+                        uploadUrl: '/upload/url', // URL tải ảnh lên server
+                        headers: {
+                            'X-CSRF-TOKEN': 'CSRF-TOKEN-HERE'  // Nếu cần token bảo mật
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+    </script>
+
+    <script>
+            document.addEventListener("DOMContentLoaded", function () {
+            // Lắng nghe sự kiện khi checkbox bị chọn hoặc bỏ chọn
+            const checkboxes = document.querySelectorAll(".size-checkbox");
+            checkboxes.forEach(function (checkbox) {
+                checkbox.addEventListener("change", function () {
+                    // Tìm phần tử input số lượng tương ứng với checkbox được chọn
+                    const sizeId = checkbox.value; // Lấy giá trị của sizeId từ checkbox
+                    const stockInput = document.querySelector(`.stock-input[data-size-id="${sizeId}"]`);
+
+                    // Nếu checkbox được chọn, kích hoạt trường nhập số lượng
+                    if (checkbox.checked) {
+                        stockInput.disabled = false;
+                    } else {
+                        stockInput.disabled = true;
+                        stockInput.value = ""; // Xóa giá trị số lượng nếu checkbox bị bỏ chọn
+                    }
+                });
+            });
+        });
+    </script>
+}

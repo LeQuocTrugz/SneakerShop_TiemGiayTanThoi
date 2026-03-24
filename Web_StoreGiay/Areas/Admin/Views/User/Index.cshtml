@@ -1,0 +1,68 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model IEnumerable<Web_StoreGiay.Models.ApplicationUser>
+
+@{
+    ViewData["Title"] = "Quản lý người dùng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="my-4">Quản lý người dùng</h2>
+
+<table id="userTable" class="table table-bordered table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Email</th>
+            <th>Username</th>
+            <th>Họ tên</th>
+            <th>Địa chỉ</th>
+            <th>Tuổi</th>
+            <th>Quyền</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            var roles = await Context.RequestServices.GetService<UserManager<Web_StoreGiay.Models.ApplicationUser>>().GetRolesAsync(user);
+            <tr>
+                <td>@user.Email</td>
+                <td>@user.UserName</td>
+                <td>@user.FullName</td>
+                <td>@user.Address</td>
+                <td>@user.Age</td>
+                <td>@string.Join(", ", roles)</td>
+                <td class="text-nowrap">
+                    <a asp-action="Delete" asp-route-id="@user.Id" class="btn btn-danger btn-sm">
+                        <i class="fas fa-trash"></i> Xoá
+                    </a>
+                    <a asp-action="AssignRole" asp-route-userId="@user.Id" class="btn btn-warning btn-sm ms-1">
+                        <i class="fas fa-user-shield"></i> Phân quyền
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+
+    <script>
+        $(document).ready(function () {
+            $('#userTable').DataTable({
+                language: {
+                    search: "Tìm kiếm:",
+                    lengthMenu: "Hiển thị _MENU_ người dùng",
+                    info: "Hiển thị _START_ đến _END_ trong _TOTAL_ người dùng",
+                    paginate: {
+                        previous: "Trước",
+                        next: "Sau"
+                    }
+                }
+            });
+        });
+    </script>
+}

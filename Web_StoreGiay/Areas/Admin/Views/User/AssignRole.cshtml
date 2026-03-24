@@ -1,0 +1,28 @@
+﻿@model Web_StoreGiay.Models.ApplicationUser
+
+@{
+    ViewData["Title"] = "Phân quyền người dùng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Phân quyền cho người dùng</h2>
+<h4>Vai trò hiện tại:</h4>
+<ul>
+    @foreach (var role in ViewData["UserRoles"] as List<string>)
+    {
+        <li>@role</li>
+    }
+</ul>
+<form method="post">
+    <div class="form-group">
+        <label for="role">Chọn vai trò</label>
+        <select name="role" class="form-control" id="role">
+            <option value="">Chọn vai trò</option>
+            @foreach (var role in ViewData["Roles"] as List<string>)
+            {
+                <option value="@role">@role</option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary m-1">Lưu phân quyền</button>
+</form>

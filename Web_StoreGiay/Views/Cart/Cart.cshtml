@@ -1,0 +1,171 @@
+﻿@model IEnumerable<Web_StoreGiay.Models.CartItem>
+@{
+    ViewData["Title"] = "Giỏ Hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Tính toán tổng giá trị ban đầu
+    var totalPrice = Model.Sum(item => item.Quantity * item.Price);
+}
+
+<h2 class="text-center mb-4">Giỏ Hàng</h2>
+
+@if (Model == null || !Model.Any())
+{
+    <p class="text-center">Giỏ hàng của bạn hiện tại trống. Vui lòng tiếp tục mua sắm.</p>
+    <div class="text-center">
+        <a href="@Url.Action("Index", "Home")" class="btn btn-primary">Tiếp tục mua sắm</a>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Sản phẩm</th>
+                    <th>Size</th> <!-- Cột Size -->
+                    <th>Số lượng</th>
+                    <th>Giá</th>
+                    <th>Tổng</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr id="item-@item.Id">
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <img src="@item.Product.ImageUrl" alt="@item.Product.Name" style="width: 80px; height: 80px; object-fit: cover;" class="mr-3">
+                                <strong>@item.Product.Name</strong>
+                            </div>
+                        </td>
+                        <td>
+                            @* Hiển thị tên size *@
+                            @if (item.Size != null)
+                            {
+                                <strong>@item.Size.SizeNumber</strong> <!-- Hiển thị tên size -->
+                            }
+                            else
+                            {
+                                <span>Không có size</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="input-group">
+                                <button type="button" class="btn btn-outline-secondary btn-sm quantity-button" onclick="updateQuantity(@item.Id, -1)">-</button>
+                                <input type="number" id="quantity-@item.Id" class="form-control text-center quantity-input" value="@item.Quantity" min="1" max="99" onchange="updateTotal(@item.Id)" />
+                                <button type="button" class="btn btn-outline-secondary btn-sm quantity-button" onclick="updateQuantity(@item.Id, 1)">+</button>
+                            </div>
+                        </td>
+                        <td>@item.Price.ToString("N0") VND</td>
+                        @{
+                            var sum = @item.Quantity * item.Price;
+                        }
+                        <td id="total-@item.Id">@sum.ToString("N0") VND</td>
+                        <td>
+                            <a href="@Url.Action("RemoveFromCart", "Cart", new { id = item.Id })" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash-alt"></i> Xóa
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-between mt-4">
+        <span><strong>Tổng giá trị: </strong><span id="total-price">@totalPrice.ToString("N0") VND</span></span>
+        <a href="@Url.Action("ShippingInfo", "Cart")" class="btn btn-success">Đặt hàng</a>
+    </div>
+}
+
+@section Scripts {
+    <script>
+                function updateQuantity(cartItemId, delta) {
+            // Lấy giá trị của input số lượng theo id của sản phẩm
+            var quantityInput = document.getElementById('quantity-' + cartItemId);
+            var currentValue = parseInt(quantityInput.value);
+
+            // Tính giá trị mới của số lượng
+            var newValue = currentValue + delta;
+
+            // Đảm bảo số lượng không nhỏ hơn 1 và không lớn hơn 99
+            if (newValue < 1) newValue = 1;
+            if (newValue > 99) newValue = 99;
+
+            // Cập nhật lại giá trị số lượng vào input
+            quantityInput.value = newValue;
+
+            // Cập nhật lại tổng tiền của sản phẩm
+            updateTotal(cartItemId);
+        }
+
+        function updateTotal(cartItemId) {
+            var quantity = document.getElementById('quantity-' + cartItemId).value;
+            var price = parseFloat(document.querySelector('tr#item-' + cartItemId + ' td:nth-child(4)').innerText.replace(' VND', '').replace(',', '').replace(/\./g, ''));
+            var total = quantity * price;
+
+            document.getElementById('total-' + cartItemId).innerText = total.toLocaleString('vi-VN') + ' VND';
+            updateTotalPrice();
+        }
+
+        function updateTotalPrice() {
+            var totalPrice = 0;
+            var totalElements = document.querySelectorAll('tr[id^="item-"] td:nth-child(5)');
+
+            totalElements.forEach(function(element) {
+                var total = parseFloat(element.innerText.replace(' VND', '').replace(',', '').replace(/\./g, ''));
+                totalPrice += total;
+            });
+
+            document.getElementById('total-price').innerText = totalPrice.toLocaleString('vi-VN') + ' VND';
+        }
+    </script>
+}
+
+<style>
+    .quantity-input-group {
+        width: 150px;
+    }
+
+    .quantity-button {
+        width: 30px;
+        font-size: 18px;
+        height: 40px;
+        padding: 0;
+        text-align: center;
+    }
+
+    .quantity-input {
+        width: 60px;
+        height: 40px;
+        font-size: 16px;
+        text-align: center;
+        border-radius: 5px;
+    }
+
+    .input-group .btn {
+        padding: 8px 15px;
+    }
+
+    .btn-sm {
+        font-size: 16px;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+
+    .table img {
+        border-radius: 5px;
+    }
+
+    .btn-outline-secondary {
+        border: 1px solid #ddd;
+    }
+
+    .btn-danger {
+        font-size: 14px;
+    }
+</style>

@@ -1,0 +1,105 @@
+﻿@model Web_StoreGiay.Models.Product
+
+@{
+    ViewData["Title"] = "Display";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg p-4">
+        <div class="row">
+            <!-- Cột hiển thị hình ảnh -->
+            <div class="col-md-5 text-center">
+                <!-- Ảnh chính -->
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <img src="@Model.ImageUrl" alt="Product" class="img-fluid rounded product-image mb-3" id="mainImage">
+                }
+                <!-- Ảnh phụ -->
+                <div class="d-flex justify-content-center">
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <!-- Thêm ảnh đại diện vào danh sách thumbnail -->
+                        <img src="@Model.ImageUrl" class="thumbnail mx-1 active" onclick="changeImage(event, '@Model.ImageUrl')" alt="Ảnh đại diện">
+                    }
+
+                    @if (Model.Images != null && Model.Images.Any())
+                    {
+                        foreach (var image in Model.Images)
+                        {
+                            <img src="@image.Url" class="thumbnail mx-1" onclick="changeImage(event, '@image.Url')" alt="Ảnh phụ">
+                        }
+                    }
+                </div>
+            </div>
+
+            <!-- Cột hiển thị thông tin sản phẩm -->
+            <div class="col-md-7">
+                <h2 class="text-primary">@Model.Name</h2>
+                <h4 class="text-danger fw-bold">Giá: @Model.Price.ToString("C")</h4>
+                <h3 class="text-danger fw-bold">Giá giảm: @(Model.DiscountPrice.HasValue ? Model.DiscountPrice.Value.ToString("C") : "N/A")</h3>
+                <p class="text-muted">@Html.Raw(Model.Description)</p>
+
+                <h5 class="text-dark">Size và Số lượng tồn kho</h5>
+                <ul class="list-group mb-3">
+                    @if (Model.ProductSizes != null && Model.ProductSizes.Any())
+                    {
+                        @foreach (var productSize in Model.ProductSizes)
+                        {
+                            <li class="list-group-item">
+                                <strong>Size:</strong> @(productSize?.Size?.SizeNumber.ToString() ?? "N/A") - <strong>Số lượng:</strong> @(productSize?.Stock ?? 0)
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        <li class="list-group-item">Không có thông tin về size và số lượng tồn kho.</li>
+                    }
+                </ul>
+
+                <hr>
+
+                <div class="d-flex gap-3">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Quay lại
+                    </a>
+                    <a asp-action="Update" asp-route-id="@Model.Id" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Chỉnh sửa
+                    </a>
+                    <a asp-action="Deletve" asp-route-id="@Model.Id" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Xóa
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CSS tùy chỉnh -->
+<style>
+    .product-img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
+<!-- Font Awesome (để có icon đẹp) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+@section Scripts {
+
+    <script>
+        function changeImage(event, src) {
+                document.getElementById('mainImage').src = src;
+                document.querySelectorAll('.thumbnail').forEach(thumb => thumb.classList.remove('active'));
+                event.target.classList.add('active');
+            }
+        function selectColor(element) {
+                document.querySelectorAll('.color-option').forEach(el => el.classList.remove('active'));
+                element.classList.add('active');
+        }
+       
+    </script>
+}

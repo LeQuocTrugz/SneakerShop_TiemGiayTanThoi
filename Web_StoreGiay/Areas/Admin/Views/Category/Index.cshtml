@@ -1,0 +1,61 @@
+﻿@model IEnumerable<Web_StoreGiay.Models.Category>
+
+@{
+    ViewData["Title"] = "Danh Mục Sản Phẩm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="my-4">Quản Lý Danh Mục</h2>
+
+<p>
+    <a asp-action="add" class="btn btn-success mb-3">
+        <i class="fas fa-plus"></i> Thêm danh mục mới
+    </a>
+</p>
+
+<table id="categoryTable" class="table table-bordered table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Tên danh mục</th>
+            <th style="width: 200px">Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary">
+                        <i class="fas fa-edit"></i> Sửa
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">
+                        <i class="fas fa-trash"></i> Xóa
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#categoryTable').DataTable({
+                language: {
+                    search: "Tìm kiếm:",
+                    lengthMenu: "Hiển thị _MENU_ danh mục",
+                    info: "Hiển thị _START_ đến _END_ trong tổng _TOTAL_ danh mục",
+                    paginate: {
+                        previous: "Trước",
+                        next: "Sau"
+                    }
+                }
+            });
+        });
+    </script>
+    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+}

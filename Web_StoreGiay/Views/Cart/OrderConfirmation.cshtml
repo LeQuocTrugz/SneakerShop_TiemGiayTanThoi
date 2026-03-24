@@ -1,0 +1,44 @@
+﻿@model Web_StoreGiay.Models.Order
+
+<h2 class="text-center mb-4">Xác Nhận Đơn Hàng</h2>
+
+<h3>Thông tin giao hàng</h3>
+<p><strong>Tên người nhận:</strong> @Model.Name</p>
+<p><strong>Email:</strong> @Model.Email</p>
+<p><strong>Số điện thoại:</strong> @Model.PhoneNumber</p>
+<p><strong>Địa chỉ:</strong> @Model.Address</p>
+<p><strong>Phí ship (COD):</strong> @Model.ShippingFee.ToString("N0") VND</p>
+
+<h3>Thông tin đơn hàng</h3>
+<table class="table">
+        <thead>
+            <tr>
+                <th>Sản phẩm</th>
+                <th>Số lượng</th>
+                <th>Giá</th>
+                <th>Tổng</th>
+            </tr>
+        </thead>
+        @foreach (var item in Model.OrderDetails)
+        {
+            <tr>
+                <td>@item.Product.Name</td>
+                <td>@item.Quantity</td>
+                <td>@item.Price.ToString("N0") VND</td>
+                @{
+				    var sum = item.Quantity * item.Price;
+                }
+                <td>@sum.ToString("N0") VND</td>
+            </tr>
+        }
+</table>
+
+<!-- Thông tin tổng giá trị đơn hàng -->
+@{
+    var s = Model.TotalPrice + Model.ShippingFee;
+}
+<h4>Tổng giá trị đơn hàng: @s.ToString("N0") VND</h4>
+
+<form method="post" action="@Url.Action("OrderSuccess", "Cart")">
+    <button type="submit" class="btn btn-success">Xác nhận Đặt hàng</button>
+</form>

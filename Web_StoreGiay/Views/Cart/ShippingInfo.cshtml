@@ -1,0 +1,28 @@
+﻿@model Web_StoreGiay.Models.Order
+
+<h2 class="text-center mb-4">Thông Tin Giao Hàng</h2>
+
+<form method="post" action="@Url.Action("ConfirmOrder", "Cart")">
+    <div class="form-group">
+        <label for="Name">Tên người nhận</label>
+        <input type="text" id="Name" name="Name" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label for="Email">Email</label>
+        <input type="email" id="Email" name="Email" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label for="PhoneNumber">Số điện thoại</label>
+        <input type="text" id="PhoneNumber" name="PhoneNumber" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label for="Address">Địa chỉ</label>
+        <input type="text" id="Address" name="Address" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label for="ShippingFee">Phí ship (COD)</label>
+        <input type="text" id="ShippingFee" name="ShippingFee" class="form-control" value="45000" readonly />
+    </div>
+
+    <button type="submit" class="btn btn-success">Xác nhận Đặt hàng</button>
+</form>

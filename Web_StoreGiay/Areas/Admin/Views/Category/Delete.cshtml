@@ -1,0 +1,31 @@
+﻿@model Web_StoreGiay.Models.Category
+
+@{
+    ViewData["Title"] = "Xóa Danh Mục";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="my-4 text-danger">Xóa Danh Mục</h2>
+
+<div class="alert alert-warning">
+    <h5>Bạn có chắc chắn muốn xóa danh mục này không?</h5>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Tên danh mục</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Name)</dd>
+        </dl>
+    </div>
+</div>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">
+        <i class="fas fa-trash"></i> Xóa
+    </button>
+    <a asp-action="Index" class="btn btn-secondary ms-2">
+        <i class="fas fa-arrow-left"></i> Trở về danh sách
+    </a>
+</form>

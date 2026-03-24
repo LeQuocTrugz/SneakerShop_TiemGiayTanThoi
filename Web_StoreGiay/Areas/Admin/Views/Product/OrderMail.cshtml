@@ -1,0 +1,41 @@
+﻿@model IEnumerable<Web_StoreGiay.Models.Order>
+
+<h2 class="text-center mb-4">Danh Sách Đơn Hàng Chờ Xác Nhận</h2>
+
+@if (!Model.Any())
+{
+    <p class="text-center">Không có đơn hàng nào chờ xác nhận.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Đơn hàng ID</th>
+                <th>Tên người nhận</th>
+                <th>Email</th>
+                <th>Ngày đặt hàng</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model)
+            {
+                <tr>
+                    <td>@order.Id</td>
+                    <td>@order.Name</td>
+                    <td>@order.Email</td>
+                    <td>@order.OrderDate.ToString("dd/MM/yyyy")</td>
+                    <td>@order.Status</td>
+                    <td>
+                        <form method="post" action="@Url.Action("ConfirmOrder", "product")">
+                            <input type="hidden" name="orderId" value="@order.Id" />
+                            <button type="submit" class="btn btn-success">Xác nhận</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

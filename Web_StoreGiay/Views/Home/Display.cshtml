@@ -1,0 +1,227 @@
+﻿@model Web_StoreGiay.Models.Product
+
+@{
+    ViewData["Title"] = "DisplayUser";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <!-- Product Images -->
+        <div class="col-md-7 text-center">
+            <!-- Ảnh chính -->
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <img src="@Model.ImageUrl" alt="Product" class="img-fluid rounded product-image mb-3" id="mainImage">
+            }
+            <!-- Ảnh phụ -->
+            <div class="d-flex justify-content-center">
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <!-- Thêm ảnh đại diện vào danh sách thumbnail -->
+                    <img src="@Model.ImageUrl" class="thumbnail mx-1 active" onclick="changeImage(event, '@Model.ImageUrl')" alt="Ảnh đại diện">
+                }
+
+                @if (Model.Images != null && Model.Images.Any())
+                {
+                    foreach (var image in Model.Images)
+                    {
+                        <img src="@image.Url" class="thumbnail mx-1" onclick="changeImage(event, '@image.Url')" alt="Ảnh phụ">
+                    }
+                }
+            </div>
+        </div>
+
+
+        <div class="col-md-5">
+            <h2 class="mb-5">@Model.Name</h2>
+            <div class="mb-3 pb-3">
+                @if (Model.DiscountPrice.HasValue && Model.DiscountPrice < Model.Price)
+                {
+                    <span class="h5 me-2">@Model.DiscountPrice.Value.ToString("N0") VND</span>
+                    <span class="text-muted"><s>@Model.Price.ToString("N0") VND</s></span>
+                }
+                else
+                {
+                    <span class="h5 me-2">@Model.Price.ToString("N0") VND</span>
+                }
+            </div>
+
+            <!-- Select Size -->
+            <div class="mb-3 ">
+                <div class="d-flex gap-2 flex-wrap">
+                    @foreach (var size in ViewBag.AllSizes)
+                    {
+                        // Kiểm tra nếu size có tồn tại trong ProductSize cho sản phẩm này
+                        var productSize = Model.ProductSizes.FirstOrDefault(ps => ps.SizeId == size.Id);
+                        var isAvailable = productSize != null && productSize.Stock > 0 ? "btn-outline-dark" : "btn-secondary";
+                        var isDisabled = productSize != null && productSize.Stock > 0 ? "" : "disabled";
+
+                        <button type="button" class="btn @isAvailable @isDisabled" @isDisabled
+                                data-size-id="@size.Id"
+                                onclick="selectSize(@size.Id, '@size.SizeNumber')">
+                            @size.SizeNumber
+                        </button>
+                    }
+                    <div id="sizeSelectedMessage" class="mt-3 text-success" style="display:none;">
+                        Bạn đã chọn kích thước: <span id="selectedSizeText"></span>
+                    </div>
+                    <br>
+                    <span id="selectedSizeId" style="font-weight: bold;"></span>
+                </div>
+            </div>
+
+            <!-- Quantity Control -->
+            <div class="d-flex flex-column gap-2">
+                <!-- Label xuống dòng -->
+                <label for="quantity" class="form-label mb-2">Số lượng</label>
+
+                <!-- Nút cộng trừ và ô nhập số lượng -->
+                <div class="input-group p-2 w-25">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(-1)">-</button>
+                    <input type="number" id="quantity" class="form-control text-center btn-quantity" value="1" min="1" max="99" />
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(1)">+</button>
+                </div>
+            </div>
+
+            <!-- Add to Cart -->
+            <form action="@Url.Action("AddToCart", "Cart")" method="post">
+                <input type="hidden" name="productId" value="@Model.Id" />
+                <input type="hidden" name="sizeId" id="sizeId"  value="sizeId"/> <!-- Input ẩn để chứa sizeId -->
+                <input type="hidden" name="quantity" id="quantityInput" value="1" /> <!-- Số lượng mặc định là 1 -->
+
+                <button type="submit" class="btn btn-dark flex-grow-1">
+                    Thêm vào giỏ hàng <i class="bi bi-cart ms-2"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<hr />
+<!-- Product Information and Related Products -->
+<div class=" container">
+    <div class="row p-2">
+        <!-- Mô tả chi tiết -->
+        <div class="row ">
+            <div class="col-md-12">
+                <h3 class="mb-4 text-center">Thông tin sản phẩm</h3>
+                <ul class="list-group">
+                    <li class="list-group-item"><strong>Mã sản phẩm:</strong> @Model.Id</li>
+                    <li class="list-group-item"><strong>Hãng:</strong> @Model.Category.Name</li>
+                    <li class="list-group-item"><strong>Giá:</strong> <span class="text-danger fw-bold">@Model.Price.ToString("N0") VND</span></li>
+                    <li class="list-group-item"><strong>Trạng thái:</strong> <span class="text-success">Còn hàng</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Mô tả thiết kế -->
+        <div class="row mt-5">
+            <div class="col-md-12">
+                <h3 class="mb-4 text-center">Mô tả thiết kế</h3>
+                <p>@Html.Raw(Model.Description)</p>
+            </div>
+        </div>
+    </div>
+    <!-- Sản phẩm tương tự -->
+    <div class="row mt-5">
+        <h3 class="mb-4">Sản phẩm tương tự</h3>
+        <div class="col-md-12">
+            <div class="row product-same">
+                @foreach (var item in ViewBag.RelatedProducts)
+                {
+                    <div class="col-lg-3 col-md-4 col-6 mb-4">
+                        <a href="@Url.Action("Display", "Home", new { id = item.Id })" class="custom-product-card">
+                            <div class="card h-100">
+                                <img src="@item.ImageUrl" alt="@item.Name" class="card-img-top" />
+                                <div class="card-body">
+                                    <h5 class="card-title">@item.Name </h5>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+
+</div>
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function changeImage(event, src) {
+                document.getElementById('mainImage').src = src;
+                document.querySelectorAll('.thumbnail').forEach(thumb => thumb.classList.remove('active'));
+                event.target.classList.add('active');
+            }
+        function selectColor(element) {
+                document.querySelectorAll('.color-option').forEach(el => el.classList.remove('active'));
+                element.classList.add('active');
+        }
+       
+        // Cập nhật số lượng
+        function updateQuantity(delta) {
+            var quantityInput = document.getElementById("quantity");
+            var newQuantity = parseInt(quantityInput.value) + delta;
+
+            if (newQuantity < 1) newQuantity = 1;
+            if (newQuantity > 99) newQuantity = 99;
+
+            quantityInput.value = newQuantity;
+            document.getElementById("quantityInput").value = newQuantity; // Cập nhật giá trị quantity trong hidden input
+        }
+
+        //Cập nhật size
+        var selectedSizeId = null; // Biến để lưu sizeId được chọn
+        // Hàm xử lý khi người dùng chọn một size
+        function selectSize(sizeId, sizeNumber) {
+            selectedSizeId = sizeId;  // Lưu sizeId được chọn
+            // Cập nhật các nút size để hiển thị trạng thái đã chọn
+            document.querySelectorAll('.btn').forEach(button => {
+                if (button.getAttribute('data-size-id') == sizeId) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+
+            // Hiển thị thông báo chọn size
+            // document.getElementById('sizeSelectedMessage').style.display = 'block'; // Hiển thị thông báo
+            // document.getElementById('selectedSizeText').textContent = sizeNumber;  // Hiển thị kích thước đã chọn
+            // document.getElementById('selectedSizeId').textContent = "Size ID đã chọn: " + sizeId;
+
+            document.getElementById('sizeId').value = sizeId;
+        }
+
+        // Trước khi gửi form, đảm bảo rằng sizeId đã được chọn
+        document.querySelector('form').onsubmit = function() {
+            if (!selectedSizeId) {
+                alert("Vui lòng chọn kích thước trước khi thêm vào giỏ hàng.");
+                return false;
+            }
+
+            // Gửi sizeId vào form
+            document.querySelector('[name="sizeId"]').value = selectedSizeId;
+        };
+    </script>
+}
+    <style>
+        .container {
+            max-width: 90%; /* Giảm kích thước container để chiếm 90% chiều rộng */
+        }
+
+        .input-group .btn {
+            padding: 5px 10px; /* Giảm kích thước nút */
+        }
+
+        .btn-sm {
+            font-size: 12px; /* Giảm kích thước nút */
+        }
+
+        .product-image {
+            max-width: 90%;
+            height: 400px;
+            border-radius: 10px;
+        }
+    </style>

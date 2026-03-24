@@ -1,0 +1,24 @@
+﻿@model Web_StoreGiay.Models.Order
+
+<h2>Chi tiết đơn hàng #@Model.Id</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Sản phẩm</th>
+            <th>Size</th>
+            <th>Số lượng</th>
+            <th>Giá</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var detail in Model.OrderDetails)
+        {
+            <tr>
+                <td>@detail.Product.Name</td>
+                <td>@detail.Quantity</td>
+                <td>@detail.Price.ToString("N0") VND</td>
+            </tr>
+        }
+    </tbody>
+</table>

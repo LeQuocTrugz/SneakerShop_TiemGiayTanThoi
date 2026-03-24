@@ -1,0 +1,181 @@
+﻿@model Web_StoreGiay.Models.Product
+
+@{
+    ViewData["Title"] = "Add";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class ="text-center text-primary p-5">Thêm Sản Phẩm</h2>
+
+<form asp-action="Add" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label asp-for="Name">Tên sản phẩm</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Price">Giá sản phẩm</label>
+        <input asp-for="Price" class="form-control" />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="DiscountPrice">Giá giảm (nếu có)</label>
+        <input asp-for="DiscountPrice" class="form-control" />
+        <span asp-validation-for="DiscountPrice" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Description">Mô tả</label>
+        <textarea asp-for="Description" class="form-control" id="editor"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="CategoryId">Category</label>
+        <select asp-for="CategoryId" asp-items="ViewBag.Categories"
+                class="form-control"></select>
+@*         @if (ViewBag.Categories == null)
+        {
+            <p class="text-danger">⚠️ Không có danh mục nào được tải!</p>
+        }
+        else
+        {
+            <p class="text-success">✅ Danh mục đã được tải thành công!</p>
+            <ul>
+                @foreach (var category in ViewBag.Categories)
+                {
+                    <li>@category.Text (ID: @category.Value)</li>
+                }
+            </ul>
+        } *@
+    </div>
+    <div class="form-group">
+        <label>Ảnh Đại Diện</label>
+        <input type="file" name="imageUrlFile" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Ảnh phụ</label>
+        <input type="file" name="imageFiles" class="form-control" multiple />
+    </div>
+    <div class="form-group">
+        <label asp-for="Gender">Giới tính</label>
+        <select asp-for="Gender" class="form-control">
+            <option value="1">Nam</option>
+            <option value="2">Nữ</option>
+            <option value="3">Unisex</option>
+        </select>
+    </div>
+    <!-- Chọn size và nhập số lượng tồn kho -->
+    <div class="form-group">
+        <label>Chọn Size và Số Lượng</label>
+        <div id="sizeContainer">
+            @foreach (var size in ViewBag.Sizes)
+            {
+                <div class="size-item">
+                    <label>
+                        <input type="checkbox" class="size-checkbox" name="selectedSizes" value="@size.Id" data-size-id="@size.Id" /> @size.SizeNumber
+                    </label>
+                    <input type="number" class="form-control stock-input" name="stockQuantities" data-size-id="@size.Id" placeholder="Số lượng" min="0" disabled />
+                </div>
+            }
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary mt-4">Thêm</button>
+</form>
+<div>
+    <a asp-action="Index">Trở về</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <!-- Load CKEditor từ CDN -->
+    <script src="https://cdn.ckeditor.com/ckeditor5/38.0.0/classic/ckeditor.js"></script>
+    <script>
+                // Hiển thị ảnh đại diện khi chọn file
+            function previewMainImage(event) {
+                var file = event.target.files[0];
+                if (file) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        document.getElementById('mainImage').src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+            function changeImage(event, src) {
+                    document.getElementById('mainImage').src = src;
+                    document.querySelectorAll('.thumbnail').forEach(thumb => thumb.classList.remove('active'));
+                    event.target.classList.add('active');
+                }
+                ClassicEditor
+                    .create(document.querySelector('#editor'), {
+                        toolbar: [
+                            'heading', '|',
+                            'fontFamily', 'fontSize', '|',
+                            'bold', 'italic', 'link', '|',
+                            'alignment', 'imageUpload', '|',
+                            'bulletedList', 'numberedList', '|',
+                            'undo', 'redo'
+                        ],
+                        fontFamily: {
+                            options: [
+                                'default',
+                                'Arial, Helvetica, sans-serif',
+                                'Georgia, serif',
+                                'Courier New, Courier, monospace',
+                                'Times New Roman, Times, serif'
+                            ],
+                            supportAllValues: true
+                        },
+                        fontSize: {
+                            options: [
+                                'default',
+                                'tiny',
+                                'small',
+                                'big',
+                                'huge'
+                            ],
+                            supportAllValues: true
+                        },
+                        image: {
+                            toolbar: ['imageTextAlternative', '|', 'imageStyle:full', 'imageStyle:side'],
+                        },
+                        alignment: {
+                            options: ['left', 'center', 'right']
+                        },
+                        simpleUpload: {
+                            uploadUrl: '/upload/url', // URL tải ảnh lên server
+                            headers: {
+                                'X-CSRF-TOKEN': 'CSRF-TOKEN-HERE'  // Nếu cần token bảo mật
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
+    </script>
+    <script>
+         // JavaScript để lắng nghe sự kiện checkbox và kích hoạt trường nhập số lượng
+        document.addEventListener("DOMContentLoaded", function () {
+            // Lắng nghe sự kiện khi checkbox bị chọn hoặc bỏ chọn
+            const checkboxes = document.querySelectorAll(".size-checkbox");
+            checkboxes.forEach(function (checkbox) {
+                checkbox.addEventListener("change", function () {
+                    // Tìm phần tử input số lượng tương ứng với checkbox được chọn
+                    const sizeId = checkbox.getAttribute("data-size-id");
+                    const stockInput = document.querySelector(`.stock-input[data-size-id="${sizeId}"]`);
+
+                    // Nếu checkbox được chọn, kích hoạt trường nhập số lượng
+                    if (checkbox.checked) {
+                        stockInput.disabled = false;
+                    } else {
+                        stockInput.disabled = true;
+                        stockInput.value = ""; // Xóa giá trị số lượng nếu checkbox bị bỏ chọn
+                    }
+                });
+            });
+        });
+    </script>
+}
+

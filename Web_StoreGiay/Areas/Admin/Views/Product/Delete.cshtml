@@ -1,0 +1,57 @@
+﻿@model Web_StoreGiay.Models.Product
+
+@{
+    ViewData["Title"] = "Delete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg p-4 text-center">
+        <h2 class="text-danger">Xóa sản phẩm</h2>
+        <p class="fw-bold">Bạn có chắc chắn muốn xóa sản phẩm này?</p>
+
+        <div class="row">
+            <div class="col-md-5 text-center">
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <img src="@Model.ImageUrl" alt="Ảnh sản phẩm" class="img-fluid product-img">
+                }
+                else
+                {
+                    <img src="https://via.placeholder.com/300" alt="Không có ảnh" class="img-fluid product-img">
+                }
+            </div>
+
+            <div class="col-md-7">
+                <h3 class="text-primary">@Model.Name</h3>
+                <h4 class="text-danger">Giá: @Model.Price.ToString("C")</h4>
+                <p>@Model.Description</p>
+
+                <form asp-action="DeleteConfirmed" method="post">
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="d-flex justify-content-center gap-3 mt-3">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Xóa
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Hủy
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .product-img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">

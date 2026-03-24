@@ -1,0 +1,44 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    var user = await UserManager.GetUserAsync(User);
+    var isAdmin = await UserManager.IsInRoleAsync(user, "Admin");
+    var userName = user.UserName?.Replace("_", " ");
+
+    <div class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle text-dark text-decoration-none" href="#" id="userDropdown"
+           role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Xin chào, @userName!">
+            <i class="fas fa-user-circle fa-lg d-inline-block"></i>
+        </a>
+
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+            <li class="dropdown-item-text fw-bold">Xin chào, @userName!</li>
+            <li><a class="dropdown-item" href="/Identity/Account/Manage">Tài khoản</a></li>
+            @if (isAdmin)
+            {
+                <li><a class="dropdown-item" href="/Admin/Product">Quản lý sản phẩm</a></li>
+                <li><a class="dropdown-item" href="/Admin/User">Quản lý người dùng</a></li>
+                <li><a class="dropdown-item" href="/Admin/Category">Quản lý danh mục</a></li>
+                <li><a class="dropdown-item" href="/admin/product/ordermail">Quản lý đơn hàng</a></li>
+
+
+            }
+            <li>
+                <form method="post" asp-area="Identity" asp-page="/Account/Logout" class="dropdown-item p-0">
+                    <input type="hidden" name="returnUrl" value="@Url.Action("Index", "Home", new { area = "" })" />
+                    <button type="submit" class="btn btn-link dropdown-item">Đăng xuất</button>
+                </form>
+
+            </li>
+        </ul>
+    </div>
+}
+else
+{
+    <a href="/Identity/Account/Login" class="text-dark text-decoration-none" title="Đăng nhập">
+        <i class="fas fa-user-circle fa-lg d-inline-block"></i>
+    </a>
+}

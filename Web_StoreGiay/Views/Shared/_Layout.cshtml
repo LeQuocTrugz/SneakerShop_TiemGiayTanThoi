@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Web_StoreGiay</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Web_StoreGiay.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</head>     
+<body>
+    <div class="wrapper d-flex flex-column min-vh-100">
+        <header>
+                <div class="top-bar">
+                    Mua giày tại Tiệm Giày Tân Thời - Chuyên sỉ lẻ giày sneaker, uy tín, chất lượng !!
+                </div>
+                <nav class="navbar">
+                    <div class="navbar-content">
+                        <div class="logo">
+                            <a asp-area="" asp-controller="Home" asp-action="Index">
+                            <img src="~/Images/logo.jpg" alt="Logo Cửa Hàng" class="logo rounded-circle">
+                            </a>
+                        </div>
+                        <ul class="nav-menu">
+                            <li><a asp-area ="" asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+                            <li><a href="@Url.Action("ProductsOnSale","Home")">Sale</a></li>
+                        <li><a href="@Url.Action("ProductsByGender", "Home", new { gender = 1 })">Giày Nam</a></li>
+                        <li><a href="@Url.Action("ProductsByGender", "Home", new { gender = 2 })">Giày Nữ</a></li>
+                            @* <li><a href="#">Hãng</a></li> *@
+                        </ul>
+                    <div class="nav-icons d-flex align-items-center gap-3">
+                        <form id="searchForm" method="get" action="/Home/Search">
+                            <input type="text" id="searchInput" name="keyword" placeholder="Tìm kiếm..." class="form-control form-control-sm rounded-pill" style="width: 200px;">
+                        </form>
+                        <a href="@Url.Action("Cart", "Cart")" class="text-decoration-none">
+                            <i class="fas fa-shopping-cart"></i> Giỏ hàng
+                        </a>
+                        @await Html.PartialAsync("_LoginPartial")                    
+                    </div>
+                </div>
+                </nav>
+        </header>
+        <div class="container">
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        </div>
+
+        <footer id="footer" class="bg-dark text-white p-4 mt-auto">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-3">
+                        <h5>Kết nối với chúng tôi</h5>
+                        <a href="https://www.facebook.com/profile.php?id=100088578951849" class="text-white me-3">
+                            <i class="fab fa-facebook-f"></i> Facebook
+                        </a><br>
+                        <a href="https://instagram.com" class="text-white me-3">
+                            <i class="fab fa-instagram"></i> Instagram
+                        </a><br>
+                        <a href="https://zalo.me" class="text-white">
+                            <i class="fas fa-comment"></i> Zalo
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <h5>Liên hệ</h5>
+                        <p><i class="fas fa-phone"></i> 0987 654 321</p>
+                        <p><i class="fas fa-envelope"></i> support@tiemgiaytanthoi.com</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h5>Địa chỉ cửa hàng</h5>
+                        <p><i class="fas fa-map-marker-alt"></i> 123 Đường ABC, Quận 1, TP.HCM</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h5>Thời gian hoạt động</h5>
+                        <p><i class="fas fa-clock"></i> Thứ 2 - Chủ Nhật: 9:00 - 22:00</p>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <p>Copyright© 2025 Tiệm Giày Tân Thời - All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+  </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+<script>
+    document.getElementById("searchInput").addEventListener("input", function () {
+      var keyword = this.value.toLowerCase();
+      var rows = document.querySelectorAll("#productTable tr");
+
+      rows.forEach(function (row) {
+        var text = row.textContent.toLowerCase();
+        row.style.display = text.includes(keyword) ? "" : "none";
+      });
+    });
+</script>
+

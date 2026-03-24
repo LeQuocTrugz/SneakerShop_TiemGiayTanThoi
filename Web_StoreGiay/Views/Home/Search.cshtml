@@ -1,0 +1,40 @@
+﻿@model IEnumerable<Web_StoreGiay.Models.Product>
+
+@{
+    ViewData["Title"] = "Tìm kiếm sản phẩm";
+}
+
+<h3>Tìm kiếm sản phẩm</h3>
+
+<!-- Hiển thị từ khóa tìm kiếm -->
+@if (!string.IsNullOrEmpty(ViewBag.Keyword))
+{
+    <p><strong>Kết quả tìm kiếm cho: </strong>@ViewBag.Keyword</p>
+}
+
+<!-- Hiển thị danh sách sản phẩm -->
+@if (Model != null && Model.Any())
+{
+    <div class="row">
+        @foreach (var product in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="product-item">
+                    <a href="@Url.Action("Display", "Home", new { id = product.Id })" class="text-decoration-none text-dark">
+                        <div class="card product shadow-sm">
+                            <img src="@product.ImageUrl" class="card-img-top" alt="@product.Name">
+                            <div class="card-body">
+                                <h5 class="card-title">@product.Name</h5>
+                                <p>@product.Price.ToString("N0") VND</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p>Không có sản phẩm nào phù hợp với từ khóa tìm kiếm của bạn.</p>
+}
